@@ -1,0 +1,5 @@
+/target/
+report/
+allure-result/
+test-output/
+logs/

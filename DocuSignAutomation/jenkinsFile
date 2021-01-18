@@ -1,0 +1,39 @@
+node(){
+    	stage('Checkout Code'){
+        checkout scm;//Get Github project into Jenkins workspace!!
+        sh 'ls'
+    	}
+     
+	try{
+	stage('Install Dependencies and Run Tests'){
+	    sh 'mvn install -X'; // Download all the dependencies!! and Starts running the tests in the src/test folder!
+		}
+	}
+	catch(Exception e){
+	    sh 'echo "********mvn install stage failed*********"'
+	}
+
+	try{
+		stage('Archive the HTML Reports'){
+	   	archiveArtifacts artifacts: 'report/*.html', followSymlinks: false
+	   	}
+	 }
+	
+	catch(Exception e){
+	    sh 'echo "********Archive the HTML Reports stage failed*********"'
+	}
+	
+	
+	try{
+		stage('Send Notification'){
+		emailext attachLog: true, attachmentsPattern: 'report/*.html', body: '''Hi All,
+
+Please find the report for the Test Execution.''', compressLog: true, subject: 'Job \'${JOB_NAME}\' (${BUILD_NUMBER}) Test Report', to: 'kanigirinikhila9@gmail.com'
+	}
+	}
+	catch(Exception e){
+	    sh 'echo "********Send Notification stage failed*********"'
+	}
+	
+
+}
